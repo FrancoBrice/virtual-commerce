@@ -1,34 +1,36 @@
 import os
 import requests
 import json
+from sqlalchemy.orm import Session
 from services.cart_service import get_cart
+from models.models import Product  # ✅ Importar modelo de productos
+from api.dependencies import get_db  # ✅ Obtener sesión de la base de datos
 
-def get_best_shipping_rate():
+SENDER_INFO = {
+    "type": "PICK_UP",
+    "addressStreet": "Juan de Valiente 3630",
+    "city": "Vitacura",
+    "phone": "+56912345678",
+    "name": "Flapp Store"
+}
+
+TRALEOYA_API_URL = os.getenv("TRALEOYA_API_URL")
+UDER_API_URL = os.getenv("UDER_API_URL")
+UDER_API_KEY = os.getenv("UDER_API_KEY")
+TRALEOYA_API_KEY = os.getenv("TRALEOYA_API_KEY")
+
+
+def get_best_shipping_rate(db: Session):
     cart_data = get_cart()
     if not cart_data:
         return None
 
-    sender_info = {
-        "type": "PICK_UP",
-        "addressStreet": "Juan de Valiente 3630",
-        "city": "Vitacura",
-        "phone": "+56912345678",
-        "name": "Flapp Store"
-    }
+    receiver_info = format_receiver_info(cart_data["customer_data"])
+    waypoints = [SENDER_INFO, receiver_info]
+    items = extract_items_from_cart(cart_data, db)  # ✅ Pasar sesión de BDD
 
-    receiver_info = {
-        "type": "DROP_OFF",
-        "addressStreet": "Avenida1212121",
-        "city": "hola",
-        "phone": "+56987654321",
-        "name": "Juan Pérez"
-    }
-
-    waypoints = [sender_info, receiver_info]
-    items = extract_items_from_cart(cart_data)
-
-    traloya_price = get_courier_rate("TraeloYa", os.getenv("TRALEOYA_API_URL"), os.getenv("TRALEOYA_API_KEY"), waypoints, items)
-    uder_price = get_courier_rate("Uder", os.getenv("UDER_API_URL"), os.getenv("UDER_API_KEY"), waypoints, items)
+    traloya_price = get_courier_rate("TraeloYa", TRALEOYA_API_URL, TRALEOYA_API_KEY, waypoints, items)
+    uder_price = get_courier_rate("Uder", UDER_API_URL, UDER_API_KEY, waypoints, items)
 
     shipping_options = []
     if traloya_price:
@@ -39,18 +41,36 @@ def get_best_shipping_rate():
     return min(shipping_options, key=lambda x: x["price"]) if shipping_options else None
 
 
+def format_receiver_info(customer_data):
+    return {
+        "type": "DROP_OFF",
+        "addressStreet": customer_data["shipping_street"],
+        "city": customer_data["commune"],
+        "phone": customer_data["phone"],
+        "name": customer_data["name"]
+    }
 
-def extract_items_from_cart(cart_data):
-    return [
-        {
-            "name": item["title"],  # Required for Uder API
+
+def extract_items_from_cart(cart_data, db: Session):
+    extracted_items = []
+
+    for item in cart_data["products"]:
+        product_info = get_product_from_db(item["productId"], db)  # ✅ Obtener datos desde la BDD
+        if not product_info:
+            continue  
+
+        extracted_items.append({
+            "name": product_info.title,  # ✅ Nombre obtenido de la BDD
             "quantity": item["quantity"],
             "value": item["price"],
-            "volume": 1.0  # Placeholder, TraeloYa format
-        }
-        for item in cart_data["products"]
-    ]
+            "volume": 1.0  
+        })
 
+    return extracted_items
+
+
+def get_product_from_db(product_id, db: Session):
+    return db.query(Product).filter(Product.id == product_id).first()
 
 
 def get_courier_rate(courier_name, api_url, api_key, waypoints, items):
@@ -81,7 +101,7 @@ def get_courier_rate(courier_name, api_url, api_key, waypoints, items):
                     "quantity": item["quantity"],
                     "price": item["value"],
                     "dimensions": {
-                        "length": 10,  # Placeholder, replace with real dimensions if available
+                        "length": 10,
                         "height": 5,
                         "depth": 3
                     }
@@ -92,26 +112,15 @@ def get_courier_rate(courier_name, api_url, api_key, waypoints, items):
     else:
         return None
 
-    print(f"Sending request to {courier_name}: {api_url}")
-    print(f"Headers: {headers}")
-    print(f"Payload: {json.dumps(payload, indent=2)}")
-
     try:
         response = requests.post(api_url, json=payload, headers=headers, verify=False)
-        print(f"Response Status: {response.status_code}")
-        print(f"Response Body: {response.text}")
-
         response.raise_for_status()
         rates = response.json()
 
         if courier_name == "TraeloYa":
             return rates["deliveryOffers"]["pricing"]["total"]
-
-
         elif courier_name == "Uder":
             return rates["fee"]
 
-
-    except Exception as e:
-        print(f"Error fetching rate from {courier_name}: {e}")
+    except Exception:
         return None

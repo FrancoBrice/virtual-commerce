@@ -34,8 +34,6 @@ const Shipping = ({ cart, setCart }) => {
       return;
     }
 
-    console.log("cartcurrentprod", cart.products);
-
     const productsArray = cart?.products?.map((item) => ({
       productId: item.id,
       price: item.price,

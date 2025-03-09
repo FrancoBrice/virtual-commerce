@@ -1,11 +1,10 @@
 from pydantic import BaseModel
 from typing import List
 
-class ProductItem(BaseModel):
-    productId: str
+class ProductRequest(BaseModel):
+    productId: int
     price: float
     quantity: int
-    discount: float
 
 class CustomerData(BaseModel):
     name: str
@@ -14,12 +13,5 @@ class CustomerData(BaseModel):
     phone: str
 
 class CartRequest(BaseModel):
-    products: List[ProductItem]
+    products: List[ProductRequest]
     customer_data: CustomerData
-
-class CartResponse(BaseModel):
-    courier: str
-    price: float
-
-class ErrorResponse(BaseModel):
-    error: str
