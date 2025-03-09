@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Checkout from "./pages/Checkout";
 import Shipping from "./pages/Shipping";
 
 function App() {
-  const [cart, setCart] = useState({ products: [], customer_data: {} });
+  // Cargar carrito desde localStorage o inicializar vacío
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : { products: [], customer_data: {} };
+  });
 
+  // Guardar carrito en localStorage cuando cambie
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   return (
     <Router>

@@ -1,4 +1,3 @@
-// src/components/Modal.js
 import React from "react";
 
 const Modal = ({ isOpen, onClose, quote, loading }) => {
@@ -16,18 +15,11 @@ const Modal = ({ isOpen, onClose, quote, loading }) => {
             <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
           </div>
         ) : quote ? (
-          <>
-            <p className="text-gray-700">
-              Courier: <strong>{quote.courier}</strong>
-            </p>
-            <p className="text-gray-700">
-              Precio: <strong>${quote.price.toFixed(2)}</strong>
-            </p>
-          </>
-        ) : (
-          <p className="text-red-600 font-semibold">
-            No hay envíos disponibles :(
+          <p className="text-gray-700">
+            Envío Flapp con <strong>{quote.courier}</strong> ⚡️ - $<strong>{quote.price.toFixed(2)}</strong>.
           </p>
+        ) : (
+          <p className="text-red-600 font-semibold">No hay envíos disponibles :(</p>
         )}
 
         <button
