@@ -4,6 +4,7 @@ from services.shipping_service import get_best_shipping_rate
 
 router = APIRouter()
 
+# Endpoint created for testing purposes
 @router.post("/api/get-lowest-shipping-rate")
 def get_lowest_shipping_rate():
     best_option = get_best_shipping_rate()

@@ -1,44 +1,67 @@
 import httpx
 from sqlalchemy.orm import Session
-from models.database import SessionLocal, engine
-from models.models import Product  # Importar el modelo de productos
+from models.database import SessionLocal
+from models.models import Product
 
 async def populate_products():
-    """
-    Obtiene todos los productos desde la API de DummyJSON y los almacena en la base de datos.
-    """
     url = "https://dummyjson.com/products"
     limit = 10
     skip = 0
 
     async with httpx.AsyncClient() as client:
         while True:
-            response = await client.get(url, params={"limit": limit, "skip": skip})
-            response.raise_for_status()
-            data = response.json()
+            try:
+                response = await client.get(url, params={"limit": limit, "skip": skip})
+                response.raise_for_status()
+                data = response.json()
 
-            # Abre una sesión con la base de datos
-            with SessionLocal() as session:
-                for product in data.get("products", []):
-                    # Verificar si el producto ya existe en la base de datos
-                    existing_product = session.query(Product).filter_by(id=product["id"]).first()
-                    if not existing_product:
-                        new_product = Product(
-                            id=product["id"],
-                            title=product["title"],
-                            description=product["description"],
-                            price=product["price"],
-                            stock=product["stock"],
-                            discountPercentage=product["discountPercentage"],
-                            thumbnail=product["thumbnail"],
-                            rating=product["rating"],
-                        )
-                        session.add(new_product)
-                
-                session.commit()  # Confirmar la transacción
+                with SessionLocal() as session:
+                    for product in data.get("products", []):
+                        existing_product = session.query(Product).filter_by(id=product["id"]).first()
 
-            total = data.get("total", 0)
-            if skip + limit >= total:
+                        if existing_product:
+                            existing_product.title = product["title"]
+                            existing_product.description = product.get("description", "")
+                            existing_product.price = product["price"]
+                            existing_product.stock = product["stock"]
+                            existing_product.discount_percentage = product.get("discountPercentage")
+                            existing_product.thumbnail = product["thumbnail"]
+                            existing_product.rating = product.get("rating")
+                            existing_product.weight = product.get("weight")
+                            existing_product.width = product["dimensions"]["width"]
+                            existing_product.height = product["dimensions"]["height"]
+                            existing_product.depth = product["dimensions"]["depth"]
+                        else:
+                            new_product = Product(
+                                id=product["id"],
+                                title=product["title"],
+                                description=product.get("description", ""),
+                                price=product["price"],
+                                stock=product["stock"],
+                                discount_percentage=product.get("discountPercentage"),
+                                thumbnail=product["thumbnail"],
+                                rating=product.get("rating"),
+                                weight=product.get("weight"),
+                                width=product["dimensions"]["width"],
+                                height=product["dimensions"]["height"],
+                                depth=product["dimensions"]["depth"],
+                            )
+                            session.add(new_product)
+
+                    session.commit()
+
+                total = data.get("total", 0)
+                if skip + limit >= total:
+                    break
+
+                skip += limit
+
+            except httpx.HTTPStatusError as e:
+                print(f"Error HTTP al obtener productos: {e.response.status_code} - {e.response.text}")
                 break
-
-            skip += limit
+            except httpx.RequestError as e:
+                print(f"Error de conexión: {e}")
+                break
+            except Exception as e:
+                print(f"Error inesperado: {e}")
+                break
