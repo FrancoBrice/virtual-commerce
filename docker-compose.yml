@@ -5,8 +5,10 @@ services:
     image: postgres:latest
     container_name: virtualcommerce_db
     restart: always
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -24,8 +26,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      SECRET_KEY: ${SECRET_KEY}
     ports:
       - "8000:8000"
     volumes:
