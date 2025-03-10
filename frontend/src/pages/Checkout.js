@@ -6,14 +6,30 @@ import OrderSummary from "../components/OrderSummary";
 const Checkout = ({ cart, setCart }) => {
   const navigate = useNavigate();
 
-  const clearCart = () => {
-    setCart({ products: [], customer_data: {} });
-    localStorage.removeItem("cart");
+  const clearCart = async () => {
+    if (!cart.id) return;
   
-    setTimeout(() => {
-      navigate("/");
-    }, 500); 
+    try {
+      const response = await fetch(`http://localhost:8000/api/cart/${cart.id}`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Error al eliminar el carrito.");
+      }
+  
+      setCart({ products: [], customer_data: {} });
+      localStorage.removeItem("cart");
+  
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
+    } catch (error) {
+      console.error("Error eliminando el carrito:", error);
+      alert("No se pudo eliminar el carrito. Inténtalo de nuevo.");
+    }
   };
+  
   
 
   return (

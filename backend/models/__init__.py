@@ -1,1 +1,1 @@
-from .models import User, Product, Cart, CartItem
+from .models import Product
