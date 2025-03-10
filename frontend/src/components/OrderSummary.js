@@ -27,11 +27,23 @@ const OrderSummary = ({ cart, quote, isShippingAvailable, onPay, showShippingBut
   };
 
   const handleShippingValidation = async () => {
+    const cartRequest = {
+      products: cart.products.map(product => ({
+        productId: product.id,
+        price: product.price,  // ✅ Agregar price
+        quantity: product.quantity
+      })),
+      customer_data: {
+        name: "Juan Pérez",  // ✅ Datos de cliente como en el ejemplo
+        shipping_street: "Calle Falsa 123",
+        commune: "Vita",
+        phone: "+56900000000"
+      }
+    };
+  
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/validate-stock?cart_id=${cart.id}`
-      );
-
+      const response = await axios.post("http://localhost:8000/api/validate-stock", cartRequest);
+  
       if (response.status === 200) {
         navigate("/shipping");
       }

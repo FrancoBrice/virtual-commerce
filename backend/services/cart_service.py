@@ -1,8 +1,11 @@
+import random
 from fastapi import HTTPException
+import requests
 from api.schemas import CartRequest
 from sqlalchemy.orm import Session
 from models.database import SessionLocal
 from models.models import Cart, Product, CartProductAssociation
+from utils.helpers import print_cart
 
 def store_cart(cart_data: dict):
     with SessionLocal() as session:
@@ -65,3 +68,50 @@ def get_cart_items(cart_request: CartRequest, db: Session):
         })
 
     return cart_items
+
+
+def fetch_random_cart():
+    random_id = random.randint(1, 50)
+    response = requests.get(f"https://dummyjson.com/carts/{random_id}")
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="No cart available.")
+
+    return response.json()
+
+
+def format_stored_cart(new_cart_id):
+    with SessionLocal() as session:
+        stored_cart = session.query(Cart).filter_by(id=new_cart_id).first()
+        if not stored_cart:
+            raise HTTPException(status_code=500, detail="Error retrieving the stored cart.")
+
+        cart_items = [
+            {"id": item.product_id, "quantity": item.quantity} for item in stored_cart.products
+        ]
+
+        print_cart(cart_items, session)
+
+        formatted_cart = {
+            "id": stored_cart.id,
+            "total": stored_cart.total,
+            "discountedTotal": stored_cart.discounted_total,
+            "products": []
+        }
+
+        for item in stored_cart.products:
+            product = session.query(Product).filter_by(id=item.product_id).first()
+            if product:
+                formatted_cart["products"].append({
+                    "id": product.id,
+                    "name": product.title,
+                    "price": product.price,
+                    "discountPercentage": product.discount_percentage,
+                    "quantity": item.quantity,
+                    "stock_obtained": product.stock,
+                    "rating": product.rating,
+                    "stock_real": product.stock_real,
+                    "thumbnail": product.thumbnail  
+                })
+
+        return formatted_cart

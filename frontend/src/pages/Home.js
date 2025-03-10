@@ -7,16 +7,22 @@ import { isCartValid } from "../utils/cartUtils";
 const Home = ({ cart, setCart }) => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchCart = async () => {
+    setIsLoading(true); // Activar loading
+    setMessage(""); // Resetear mensaje previo
+
     try {
-      const response = await axios.post("http://localhost:8000/api/generate-random-cart");
+      const response = await axios.post("http://localhost:8000/api/cart/random");
       console.log("Carrito generado:", response.data);
       setCart(response.data);
       setMessage("Carrito generado con éxito. ¡Listo para avanzar!");
     } catch (error) {
       console.error("Error al obtener el carrito:", error);
       setMessage("Hubo un error al generar el carrito.");
+    } finally {
+      setIsLoading(false); // Desactivar loading
     }
   };
 
@@ -28,25 +34,27 @@ const Home = ({ cart, setCart }) => {
 
       <div className="h-8 mb-6">
         {!isCartValid(cart) && !message && (
-          <p className="text-gray-600 text-lg">
-            Genera un carrito para continuar.
-          </p>
+          <p className="text-gray-600 text-lg">Genera un carrito para continuar.</p>
         )}
-        {message && (
-          <p className="text-green-600 text-lg font-medium">
-            {message}
-          </p>
-        )}
+        {message && <p className="text-green-600 text-lg font-medium">{message}</p>}
       </div>
 
       <div className="mt-4 flex flex-col items-center space-y-4 w-full max-w-md">
-        <Button 
-          onClick={fetchCart} 
-          className="w-full bg-blue-500 hover:bg-blue-600 px-6 py-3 text-white text-lg rounded-md shadow-md"
+        <Button
+          onClick={fetchCart}
+          disabled={isLoading}
+          className="w-full bg-blue-500 hover:bg-blue-600 px-6 py-3 text-white text-lg rounded-md shadow-md flex justify-center items-center"
         >
-          Generar Carrito
+          {isLoading ? (
+            <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"></path>
+            </svg>
+          ) : (
+            "Generar Carrito"
+          )}
         </Button>
-        
+
         <Button
           onClick={() => navigate("/checkout")}
           disabled={!isCartValid(cart)}

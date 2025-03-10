@@ -3,6 +3,10 @@ import requests
 from sqlalchemy.orm import Session
 from models.models import Product
 from fastapi import HTTPException
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 SENDER_INFO = {
     "type": "PICK_UP",
@@ -12,18 +16,19 @@ SENDER_INFO = {
     "name": "Flapp Store"
 }
 
-TRALEOYA_API_URL = os.getenv("TRALEOYA_API_URL")
+TRAELOYA_API_URL = os.getenv("TRAELOYA_API_URL")
 UDER_API_URL = os.getenv("UDER_API_URL")
 UDER_API_KEY = os.getenv("UDER_API_KEY")
-TRALEOYA_API_KEY = os.getenv("TRALEOYA_API_KEY")
+TRAELOYA_API_KEY = os.getenv("TRAELOYA_API_KEY")
 
 def calculate_best_shipping_option(cart_items, customer_data, db):
     shipping_request = {
         "products": cart_items,
         "customer_data": customer_data
     }
-    
-    return get_best_shipping_rate(db, shipping_request)
+    best_option = get_best_shipping_rate(db, shipping_request) 
+    print("🚚 Best courier option:", best_option)
+    return best_option
   
 def get_best_shipping_rate(db: Session, cart_data: dict):
     if not cart_data:
@@ -33,12 +38,12 @@ def get_best_shipping_rate(db: Session, cart_data: dict):
     waypoints = [SENDER_INFO, receiver_info]
     items = extract_items_from_cart(cart_data, db)
 
-    traloya_price = get_traloya_rate(waypoints, items)
+    traeloya_price = get_traeloya_rate(waypoints, items)
     uder_price = get_uder_rate(waypoints, items)
 
     shipping_options = []
-    if traloya_price is not None:
-        shipping_options.append({"courier": "TraeloYa", "price": traloya_price})
+    if traeloya_price is not None:
+        shipping_options.append({"courier": "TraeloYa", "price": traeloya_price})
     if uder_price is not None:
         shipping_options.append({"courier": "Uder", "price": uder_price})
 
@@ -93,9 +98,9 @@ def extract_items_from_cart(cart_data, db: Session):
     return extracted_items
 
 
-def get_traloya_rate(waypoints, items):
+def get_traeloya_rate(waypoints, items):
     headers = {
-        "X-Api-Key": TRALEOYA_API_KEY,
+        "X-Api-Key": TRAELOYA_API_KEY,
         "Content-Type": "application/json"
     }
     payload = {
@@ -104,7 +109,7 @@ def get_traloya_rate(waypoints, items):
     }
 
     try:
-        response = requests.post(TRALEOYA_API_URL, json=payload, headers=headers, verify=False)
+        response = requests.post(TRAELOYA_API_URL, json=payload, headers=headers, verify=False)
         response.raise_for_status()
         rates = response.json()
 

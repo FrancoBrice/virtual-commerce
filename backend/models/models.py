@@ -35,7 +35,7 @@ class Product(Base):
     description = Column(String)
     price = Column(Float, nullable=False)
     stock = Column(Integer, nullable=False)
-    discount_percentage = Column(Float, default=0.0)  # 🔹 Nombre corregido
+    discount_percentage = Column(Float, default=0.0) 
     thumbnail = Column(String)
     rating = Column(Float, nullable=False, default=0.0)
     weight = Column(Float, nullable=True)
