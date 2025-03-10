@@ -1,36 +1,48 @@
-version: "3.9"
+version: "3.8"
 
 services:
   db:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: virtualcommerce
+    image: postgres:latest
+    container_name: virtualcommerce_db
+    restart: always
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
   backend:
     build: ./backend
-    volumes:
-      - ./backend:/app
+    container_name: fastapi_app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
     ports:
       - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/virtualcommerce
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
     build: ./frontend
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "3000:80"
+    container_name: react_app
+    restart: always
     depends_on:
       - backend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/app
 
 volumes:
   postgres_data:
