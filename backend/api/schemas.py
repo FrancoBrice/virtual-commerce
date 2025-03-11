@@ -15,3 +15,6 @@ class CustomerData(BaseModel):
 class CartRequest(BaseModel):
     products: List[ProductRequest]
     customer_data: CustomerData
+    
+class StockRequest(BaseModel):
+    products: List[ProductRequest]

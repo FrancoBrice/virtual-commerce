@@ -1,11 +1,12 @@
 import random
 from fastapi import HTTPException
 import requests
-from api.schemas import CartRequest
+from api.schemas import CartRequest, StockRequest
 from sqlalchemy.orm import Session
 from models.database import SessionLocal
 from models.models import Cart, Product, CartProductAssociation
 from utils.helpers import print_cart
+from typing import Union
 
 def store_cart(cart_data: dict):
     with SessionLocal() as session:
@@ -29,7 +30,7 @@ def store_cart(cart_data: dict):
 
         return new_cart.id  
 
-def validate_cart_stock(cart_request: CartRequest, db: Session):
+def validate_cart_stock(cart_request: Union[CartRequest, StockRequest], db: Session):
     for item in cart_request.products:
         product = db.query(Product).filter(Product.id == item.productId).first()
 
