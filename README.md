@@ -37,7 +37,7 @@ REACT_APP_API_URL=http://localhost:8000/api
 
 ## 🚀 Despliegue local con Docker
 
-La aplicación está completamente dockerizada y puede ejecutarse en local con el siguiente comando:
+La aplicación está completamente dockerizada y puede ejecutarse en local con el siguiente comando en la carpeta raiz:
 
 ```sh
 docker-compose up --build -d 
