@@ -19,7 +19,7 @@ const ShippingForm = ({ onQuoteRequest, loading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white text-white p-6 rounded-lg shadow-md">
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-3xl font-bold mb-6">Cotizar Despacho</h2>
 
       <label className="block mb-4">
@@ -71,7 +71,7 @@ const ShippingForm = ({ onQuoteRequest, loading }) => {
       </label>
 
       <div className="mt-6 flex space-x-4">
-        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600" disabled={loading}>
+        <Button type="submit" className="w-full bg-blue-500 text-white hover:bg-blue-600" disabled={loading}>
           {loading ? "Cotizando..." : "Cotizar despacho"}
         </Button>
       </div>
