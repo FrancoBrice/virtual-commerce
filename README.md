@@ -89,6 +89,10 @@ tests/test_shipping.py ..                                                       
 
 ---
 
+
+## 📱 Responsividad
+La aplicación es completamente responsive, adaptándose tanto a dispositivos móviles como a navegadores web.
+
 ## 📌 Notas 
 
 
