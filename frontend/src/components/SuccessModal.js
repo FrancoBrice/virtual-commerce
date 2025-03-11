@@ -13,7 +13,6 @@ const SuccessModal = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
-          {/* 🎯 SOLO animamos la caja del modal */}
           <motion.div
             className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full text-center"
             initial="initial"

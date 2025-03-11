@@ -12,7 +12,6 @@ const Modal = ({ isOpen, onClose, quote, loading }) => {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
-          {/* 🎯 Solo animamos el modal, NO el fondo */}
           <motion.div
             className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full text-center"
             initial="initial"

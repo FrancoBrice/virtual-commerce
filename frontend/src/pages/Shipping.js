@@ -4,6 +4,8 @@ import Modal from "../components/Modal";
 import OrderSummary from "../components/OrderSummary";
 import ShippingForm from "../components/ShippingForm";
 
+const API_URL = process.env.REACT_APP_API_URL
+
 const Shipping = ({ cart, setCart }) => {
   const [quote, setQuote] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +26,7 @@ const Shipping = ({ cart, setCart }) => {
     }));
 
     try {
-      const response = await axios.post("http://localhost:8000/api/cart", { products: productsArray, customer_data: customerData });
+      const response = await axios.post(`${API_URL}/cart`, { products: productsArray, customer_data: customerData });
 
       if (!response.data || response.data.price === 0) {
         setIsShippingAvailable(false); 

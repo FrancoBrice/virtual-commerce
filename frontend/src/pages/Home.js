@@ -4,17 +4,19 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { isCartValid } from "../utils/cartUtils";
 
+const API_URL = process.env.REACT_APP_API_URL
+
 const Home = ({ cart, setCart }) => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchCart = async () => {
-    setIsLoading(true); // Activar loading
-    setMessage(""); // Resetear mensaje previo
+    setIsLoading(true); 
+    setMessage(""); 
 
     try {
-      const response = await axios.post("http://localhost:8000/api/cart/random");
+      const response = await axios.post(`${API_URL}/cart/random`);
       console.log("Carrito generado:", response.data);
       setCart(response.data);
       setMessage("Carrito generado con éxito. ¡Listo para avanzar!");
@@ -22,7 +24,7 @@ const Home = ({ cart, setCart }) => {
       console.error("Error al obtener el carrito:", error);
       setMessage("Hubo un error al generar el carrito.");
     } finally {
-      setIsLoading(false); // Desactivar loading
+      setIsLoading(false); 
     }
   };
 
