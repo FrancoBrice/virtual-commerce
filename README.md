@@ -1,7 +1,5 @@
 # Virtual Commerce
 
-Esto desplegará el frontend en 🔗 **[http://localhost:3000/](http://localhost:3000/)**.
-
 ## 🌍 Deploy en AWS
 
 La aplicación está desplegada en una instancia **EC2** de AWS, asociada al dominio:
@@ -44,6 +42,8 @@ La aplicación está completamente dockerizada y puede ejecutarse en local con e
 ```sh
 docker-compose up --build -d 
 ```
+
+Esto desplegará el frontend en 🔗 **[http://localhost:3000/](http://localhost:3000/)**.
 
 
 ## 🧪 Cómo ejecutar los tests
