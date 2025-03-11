@@ -1,13 +1,5 @@
 # Virtual Commerce
 
-## 🚀 Despliegue local con Docker
-
-La aplicación está completamente dockerizada y puede ejecutarse en local con el siguiente comando:
-
-```sh
-docker-compose up --build -d 
-```
-
 Esto desplegará el frontend en 🔗 **[http://localhost:3000/](http://localhost:3000/)**.
 
 ## 🌍 Deploy en AWS
@@ -20,7 +12,7 @@ Para esto, se configuró:
 - Una instancia **t2.micro**
 - Una dirección **IP elástica**
 
-## 🔧 Configuración de entorno
+## 🔧 Configuración de entorno local
 
 Antes de ejecutar la aplicación, asegúrate de crear un archivo `.env` en la carpeta base con el siguiente formato:
 
@@ -44,6 +36,15 @@ En la carpeta `frontend`, también debes crear un archivo `.env` con la siguient
 ```env
 REACT_APP_API_URL=http://localhost:8000/api
 ```
+
+## 🚀 Despliegue local con Docker
+
+La aplicación está completamente dockerizada y puede ejecutarse en local con el siguiente comando:
+
+```sh
+docker-compose up --build -d 
+```
+
 
 ## 🧪 Cómo ejecutar los tests
 
